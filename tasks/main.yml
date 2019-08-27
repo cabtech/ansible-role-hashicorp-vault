@@ -1,0 +1,37 @@
+---
+
+- name: 'push vault bash include'
+  template:
+    src: vault.sh.j2
+    dest: /usr/local/etc/bash.d/vault.sh
+    owner: root
+    group: root
+    mode: 0644
+  when: false  # TODO
+  become: true
+  tags:
+  - vault
+  - vault-bash
+
+- name: 'download vault archive'
+  get_url:
+    url: '{{hashicorp_repo}}/vault/{{vault_version}}/vault_{{vault_version}}_{{hashicorp_arch}}.{{vault_format}}'
+    dest: '{{hashicorp_dir_staging}}'
+    timeout: '{{ct_internet_timeout}}'
+    validate_certs: false
+  tags:
+  - vault
+  - vault-pkg
+
+- name: 'expand zip files'
+  unarchive:
+    src: '{{hashicorp_dir_staging}}/vault_{{vault_version}}_{{hashicorp_arch}}.{{vault_format}}'
+    dest: '{{hashicorp_dir_bin}}'
+    copy: false
+  become: true
+  tags:
+  - vault
+  - vault-pkg
+
+# --------------------------------
+...

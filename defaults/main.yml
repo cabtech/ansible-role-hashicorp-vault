@@ -1,0 +1,5 @@
+---
+vault_format: 'zip'
+vault_state: present
+vault_version: '1.2.0'
+...
