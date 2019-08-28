@@ -17,7 +17,7 @@
   get_url:
     url: '{{hashicorp_repo}}/vault/{{vault_version}}/vault_{{vault_version}}_{{hashicorp_arch}}.{{vault_format}}'
     dest: '{{hashicorp_dir_staging}}'
-    timeout: '{{ct_internet_timeout}}'
+    timeout: '{{hashicorp_internet_timeout}}'
     validate_certs: false
   tags:
   - vault
