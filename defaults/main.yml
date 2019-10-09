@@ -1,5 +1,7 @@
 ---
 vault_format: 'zip'
 vault_state: present
-vault_version: '1.2.0'
+vault_version: '1.2.3'
+#
+vault_target: 'vault_{{vault_version}}_{{hashicorp_arch}}.{{vault_format}}'
 ...

@@ -1,37 +1,34 @@
 ---
 
-- name: 'push vault bash include'
+- name: 'push bash include'
   template:
     src: vault.sh.j2
     dest: /usr/local/etc/bash.d/vault.sh
     owner: root
     group: root
     mode: 0644
-  when: false  # TODO
   become: true
   tags:
-  - vault
-  - vault-bash
+  - ct-vault
 
-- name: 'download vault archive'
+- name: 'download archive'
   get_url:
-    url: '{{hashicorp_repo}}/vault/{{vault_version}}/vault_{{vault_version}}_{{hashicorp_arch}}.{{vault_format}}'
+    url: '{{hashicorp_repo}}/vault/{{vault_version}}/{{vault_target}}'
     dest: '{{hashicorp_dir_staging}}'
     timeout: '{{hashicorp_internet_timeout}}'
     validate_certs: false
   tags:
-  - vault
-  - vault-pkg
+  - ct-vault
 
-- name: 'expand zip files'
+- name: 'expand archive'
   unarchive:
-    src: '{{hashicorp_dir_staging}}/vault_{{vault_version}}_{{hashicorp_arch}}.{{vault_format}}'
+    src: '{{hashicorp_dir_staging}}/{{vault_target}}'
     dest: '{{hashicorp_dir_bin}}'
     copy: false
   become: true
+  ignore_errors: '{{ansible_check_mode|bool}}'
   tags:
-  - vault
-  - vault-pkg
+  - ct-vault
 
 # --------------------------------
 ...
