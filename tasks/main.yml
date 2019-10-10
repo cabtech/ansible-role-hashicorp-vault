@@ -11,6 +11,18 @@
   tags:
   - ct-vault
 
+- name: 'directories'
+  file:
+    state: directory
+    path: '{{item}}'
+    owner: root
+    group: root
+    mode: '0755'
+  loop: '{{vault_dirs}}'
+  become: true
+  tags:
+  - ct-vault
+
 - name: 'download archive'
   get_url:
     url: '{{hashicorp_repo}}/vault/{{vault_version}}/{{vault_target}}'
@@ -27,6 +39,38 @@
     copy: false
   become: true
   ignore_errors: '{{ansible_check_mode|bool}}'
+  tags:
+  - ct-vault
+
+- name: 'render config template'
+  template:
+    src: config.json.j2
+    dest: '{{vault_etc_dir}}/config.json'
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  tags:
+  - ct-vault
+
+- name: 'render systemd unit file'
+  template:
+    src: vault.service.j2
+    dest: /etc/systemd/system/vault.service
+    owner: root
+    group: root
+    mode: '0644'
+  register: reg_service
+  become: true
+  tags:
+  - ct-vault
+
+- name: 'set vault service to {{vault_state}}'
+  systemd:
+    name: vault
+    state: '{{vault_state}}'
+    daemon_reload: '{{reg_service is changed}}'
+  become: true
   tags:
   - ct-vault
 

@@ -1,7 +1,18 @@
 ---
-vault_format: 'zip'
-vault_state: present
+vault_etc_dir: /etc/vault
+vault_format: zip
+vault_port: 8200
+vault_state: started
+vault_var_dir: /var/vault
 vault_version: '1.2.3'
 #
+vault_data_dir: '{{vault_var_dir}}/data'
+vault_log_dir: '{{vault_var_dir}}/log'
 vault_target: 'vault_{{vault_version}}_{{hashicorp_arch}}.{{vault_format}}'
+#
+vault_dirs:
+- '{{vault_etc_dir}}'
+- '{{vault_var_dir}}'
+- '{{vault_data_dir}}'
+- '{{vault_log_dir}}'
 ...

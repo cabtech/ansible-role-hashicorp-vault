@@ -1,0 +1,19 @@
+[Unit]
+Description=Vault service process
+Requires=network-online.target
+After=network-online.target
+ConditionFileNotEmpty={{vault_etc_dir}}/config.json
+ 
+[Service]
+EnvironmentFile=-/etc/sysconfig/vault
+Environment=GOMAXPROCS=2
+Restart=on-failure
+ExecStart={{hashicorp_dir_bin}}/vault server -config={{vault_etc_dir}}/config.json
+StandardOutput={{vault_log_dir}}/output.log
+StandardError={{vault_log_dir}}/error.log
+LimitMEMLOCK=infinity
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGTERM
+ 
+[Install]
+WantedBy=multi-user.target
