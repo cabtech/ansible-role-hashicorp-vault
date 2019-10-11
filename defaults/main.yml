@@ -2,6 +2,7 @@
 vault_etc_dir: /etc/vault
 vault_format: zip
 vault_port: 8200
+vault_protocol: 'http'
 vault_state: started
 vault_var_dir: /var/vault
 vault_version: '1.2.3'
