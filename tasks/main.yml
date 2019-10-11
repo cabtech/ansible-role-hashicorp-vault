@@ -23,6 +23,16 @@
   tags:
   - ct-vault
 
+- name: 'system account'
+  user:
+    name: vault
+    comment: 'Vault system account'
+    system: true
+    state: present
+  become: true
+  tags:
+  - ct-vault
+
 - name: 'download archive'
   get_url:
     url: '{{hashicorp_repo}}/vault/{{vault_version}}/{{vault_target}}'
@@ -69,6 +79,7 @@
   systemd:
     name: vault
     state: '{{vault_state}}'
+    enabled: true
     daemon_reload: '{{reg_service is changed}}'
   become: true
   tags:
