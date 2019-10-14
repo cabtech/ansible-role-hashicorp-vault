@@ -1,5 +1,6 @@
 [Unit]
 Description=Vault service process
+Documentation=https://vaultproject.io/docs
 Requires=network-online.target
 After=network-online.target
 ConditionFileNotEmpty={{vault_etc_dir}}/server.json
