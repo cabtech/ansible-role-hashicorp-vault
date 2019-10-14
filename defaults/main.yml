@@ -5,6 +5,7 @@ vault_lib_dir: /var/lib/vault
 vault_log_dir: /var/log/vault
 vault_port: 8200
 vault_protocol: 'http'
+vault_role: client
 vault_state: started
 vault_version: '1.2.3'
 #
