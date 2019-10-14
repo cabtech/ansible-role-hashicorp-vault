@@ -7,10 +7,11 @@
             }
         }
     ],
-    "api_addr": "http://{{vault_address}}:{{vault_port}}",
+    "api_addr": "http://{{local_ipv4}}:{{vault_port}}",
     "storage": {
-        "file": {
-            "path": "{{vault_data_dir}}"
+        "consul": {
+            "address": "127.0.0.1:8500",
+            "path": "vault"
         }
     },
     "max_lease_ttl": "10h",
