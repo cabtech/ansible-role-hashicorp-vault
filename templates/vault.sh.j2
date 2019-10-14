@@ -2,5 +2,5 @@
 # bash include vault.sh MANAGED_BY_ANSIBLE
 export PATH="{{hashicorp_dir_bin}}:${PATH}"
 alias vault={{hashicorp_dir_bin}}/vault
-export VAULT_ADDR={{vault_protocol}}://{{vault_address}}:{{vault_port}}
+export VAULT_ADDR={{vault_protocol}}://{{local_ipv4}}:{{vault_port}}
 # --------------------------------
