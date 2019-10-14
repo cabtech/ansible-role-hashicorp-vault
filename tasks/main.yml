@@ -55,8 +55,8 @@
 
 - name: 'render config template'
   template:
-    src: config.json.j2
-    dest: '{{vault_etc_dir}}/config.json'
+    src: '{{vault_role}}.json.j2'
+    dest: '{{vault_etc_dir}}/{{vault_role}}.json'
     owner: root
     group: root
     mode: '0644'
