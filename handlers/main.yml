@@ -1,0 +1,7 @@
+---
+- name: 'handler_restart_vault'
+  systemd:
+    state: restarted
+    name: vault-{{vault_role}}.service
+  become: true
+...

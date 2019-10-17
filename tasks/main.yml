@@ -1,5 +1,24 @@
 ---
 
+- name: 'download archive'
+  get_url:
+    url: '{{hashicorp_repo}}/vault/{{vault_version}}/{{vault_target}}'
+    dest: '{{hashicorp_dir_staging}}'
+    timeout: '{{hashicorp_internet_timeout}}'
+    validate_certs: false
+  tags:
+  - ct-vault
+
+- name: 'expand archive'
+  unarchive:
+    src: '{{hashicorp_dir_staging}}/{{vault_target}}'
+    dest: '{{hashicorp_dir_bin}}'
+    copy: false
+  become: true
+  ignore_errors: '{{ansible_check_mode|bool}}'
+  tags:
+  - ct-vault
+
 - name: 'push bash include'
   template:
     src: vault.sh.j2
@@ -34,25 +53,6 @@
   tags:
   - ct-vault
 
-- name: 'download archive'
-  get_url:
-    url: '{{hashicorp_repo}}/vault/{{vault_version}}/{{vault_target}}'
-    dest: '{{hashicorp_dir_staging}}'
-    timeout: '{{hashicorp_internet_timeout}}'
-    validate_certs: false
-  tags:
-  - ct-vault
-
-- name: 'expand archive'
-  unarchive:
-    src: '{{hashicorp_dir_staging}}/{{vault_target}}'
-    dest: '{{hashicorp_dir_bin}}'
-    copy: false
-  become: true
-  ignore_errors: '{{ansible_check_mode|bool}}'
-  tags:
-  - ct-vault
-
 - name: 'render config template'
   template:
     src: '{{vault_role}}.json.j2'
@@ -60,6 +60,7 @@
     owner: root
     group: root
     mode: '0644'
+  notify: handler_restart_vault
   become: true
   tags:
   - ct-vault
