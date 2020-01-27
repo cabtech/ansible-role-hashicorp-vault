@@ -29,8 +29,33 @@
   become: true
   tags:
   - ct-vault
+  - ct-vault-scripts
 
-- name: 'system account'
+- name: 'push init-vault.sh'
+  template:
+    src: init-vault.sh.j2
+    dest: /usr/local/bin/init-vault.sh
+    owner: root
+    group: root
+    mode: 0700
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-scripts
+
+- name: 'push unseal-vault.sh'
+  template:
+    src: unseal-vault.sh.j2
+    dest: /usr/local/bin/unseal-vault.sh
+    owner: root
+    group: root
+    mode: 0700
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-scripts
+
+- name: 'add system account'
   user:
     name: vault
     comment: 'Vault system account'
@@ -41,7 +66,7 @@
   tags:
   - ct-vault
 
-- name: 'directories'
+- name: 'create directories'
   file:
     state: directory
     path: '{{item.path}}'
@@ -64,6 +89,7 @@
   become: true
   tags:
   - ct-vault
+  - ct-vault-svc
 
 - name: 'render systemd unit file'
   template:
@@ -76,6 +102,7 @@
   become: true
   tags:
   - ct-vault
+  - ct-vault-svc
 
 - name: 'set vault service to {{vault_state}}'
   systemd:
@@ -86,6 +113,70 @@
   become: true
   tags:
   - ct-vault
+  - ct-vault-svc
+
+- name: 'init'
+  command: /usr/local/bin/init-vault.sh
+  args:
+    creates: /var/tmp/vault/keys
+  when: vault_master
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-postinstall
+
+- name: 'fetch files (1/2)'
+  fetch:
+    src: /var/tmp/vault/keys
+    dest: /var/tmp/vault-keys
+    flat: true
+  when: vault_master
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-postinstall
+
+- name: 'fetch files (2/2)'
+  fetch:
+    src: /var/tmp/vault/token
+    dest: /var/tmp/vault-token
+    flat: true
+  when: vault_master
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-postinstall
+
+- name: 'push files'
+  copy:
+    src: /var/tmp/vault-keys
+    dest: /var/tmp/vault/keys
+    group: root
+    mode: '0600'
+    owner: root
+  when: not vault_master
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-postinstall
+
+- name: 'unseal'
+  command: /usr/local/bin/unseal-vault.sh
+  when: not vault_master
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-postinstall
+
+- name: clean up
+  file:
+    state: absent
+    path: '{{item}}'
+  loop: ['/var/tmp/vault/keys', '/var/tmp/vault/token']
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-postinstall
 
 # --------------------------------
 ...

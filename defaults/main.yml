@@ -6,8 +6,10 @@ vault_format: zip
 vault_lib_dir: /var/lib/vault
 vault_log_dir: /var/log/vault
 vault_protocol: 'http'
+vault_master: false
 vault_role: client
 vault_state: started
+vault_tmp_dir: /var/tmp/vault
 vault_version: '1.2.3'
 #
 vault_target: 'vault_{{vault_version}}_{{hashicorp_arch}}.{{vault_format}}'
@@ -16,4 +18,5 @@ vault_dirs:
 - {path: '{{vault_etc_dir}}', owner: 'root', group: 'root', mode: '0775'}
 - {path: '{{vault_lib_dir}}', owner: 'vault', group: 'vault', mode: '0750'}
 - {path: '{{vault_log_dir}}', owner: 'root', group: 'vault', mode: '0775'}
+- {path: '{{vault_tmp_dir}}', owner: 'root', group: 'vault', mode: '0750'}
 ...
