@@ -120,6 +120,8 @@
   args:
     creates: /var/tmp/vault/keys
   when: vault_master
+  register: reg_vault_init
+  changed_when: reg_vault_init.rc != 99
   become: true
   tags:
   - ct-vault
@@ -162,8 +164,9 @@
 
 - name: 'unseal'
   command: /usr/local/bin/unseal-vault.sh
-  when: not vault_master
+  register: reg_vault_unseal
   become: true
+  changed_when: reg_vault_unseal.rc != 99
   tags:
   - ct-vault
   - ct-vault-postinstall
