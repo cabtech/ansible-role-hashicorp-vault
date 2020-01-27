@@ -27,8 +27,6 @@ if $sealed; then
 	for key in $(head -3 $fname); do
 		/opt/hashicorp/bin/vault operator unseal $key
 	done
-else
-	echo "already unsealed"
 fi
 
 /opt/hashicorp/bin/vault status
