@@ -38,9 +38,10 @@ if ! $initialized; then
 	chmod 400 $dirname/keys
 	chmod 400 $dirname/token
 	/bin/rm -f $tmpfile
+	/opt/hashicorp/bin/vault status
+else
+	exit 99
 fi
-
-/opt/hashicorp/bin/vault status
 
 # --------------------------------
 
