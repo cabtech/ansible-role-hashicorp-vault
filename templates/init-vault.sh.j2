@@ -29,10 +29,8 @@ if [[ -r "$fname" ]]; then
 	exit 42
 fi
 
-initialized=$(vault status -format=json | jq .Initialized)
-if $initialized; then
-	echo "already initialized"
-else
+initialized=$(vault status -format=json | jq .initialized)
+if ! $initialized; then
 	tmpfile=$dirname/tmpinit
 	/opt/hashicorp/bin/vault operator init | egrep "Unseal Key|Initial Root Token" | tr -d ' ' | awk -F: '{printf $2}' > $tmpfile
 	head -5 $tmpfile > $dirname/keys
