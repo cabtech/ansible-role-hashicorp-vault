@@ -27,6 +27,12 @@ if ! $initialized; then
 	chmod 400 $dirname/token
 	/bin/rm -f $tmpfile
 	/opt/hashicorp/bin/vault status
+	initialized=$(vault status -format=json | jq .initialized)
+	if $initialized; then
+		exit 0
+	else
+		exit 1
+	fi
 else
 	exit 99
 fi
