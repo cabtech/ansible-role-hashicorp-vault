@@ -171,12 +171,13 @@
   - ct-vault
   - ct-vault-postinstall
 
-- name: clean up
+- name: 'clean up temp files'
   file:
     state: absent
     path: '{{item}}'
   loop: ['/var/tmp/vault/keys', '/var/tmp/vault/token']
   become: true
+  when: not vault_master
   tags:
   - ct-vault
   - ct-vault-postinstall
