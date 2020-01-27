@@ -122,8 +122,8 @@
   changed_when:
   - reg_vault_init.rc != 99
   failed_when:
-  - reg_vault_unseal.rc != 0
-  - reg_vault_unseal.rc != 99
+  - reg_vault_init.rc != 0
+  - reg_vault_init.rc != 99
   become: true
   tags:
   - ct-vault
