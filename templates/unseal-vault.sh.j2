@@ -1,7 +1,7 @@
 #!/bin/bash
 # MANAGED_BY_ANSIBLE
 # {{inventory_hostname}}
-# Unseal script for Hashicorp Vault - not for production
+# Unseal script for Hashicorp Vault
 
 dirname=/var/tmp/vault
 if [[ ! -d "$dirname" ]]; then
@@ -27,9 +27,14 @@ if $sealed; then
 	for key in $(head -3 $fname); do
 		/opt/hashicorp/bin/vault operator unseal $key
 	done
-	/opt/hashicorp/bin/vault status
+	sealed=$(vault status -format=json | jq .sealed)
+	if $sealed; then
+		exit 1
+	else
+		exit 0
+	fi
 else
 	exit 99
 fi
 
-exit 0
+exit 1
