@@ -94,7 +94,7 @@
 - name: 'render systemd unit file'
   template:
     src: vault.service.j2
-    dest: /etc/systemd/system/vault.service
+    dest: /etc/systemd/system/vault-{{vault_role}}.service
     owner: root
     group: root
     mode: '0644'
@@ -104,9 +104,9 @@
   - ct-vault
   - ct-vault-svc
 
-- name: 'set vault service to {{vault_state}}'
+- name: 'set Vault {{vault_role}} service to {{vault_state}}'
   systemd:
-    name: vault
+    name: vault-{{vault_role}}
     state: '{{vault_state}}'
     enabled: true
     daemon_reload: '{{reg_service is changed}}'
