@@ -117,11 +117,13 @@
 
 - name: 'init'
   command: /usr/local/bin/init-vault.sh
-  args:
-    creates: /var/tmp/vault/keys
   when: vault_master
   register: reg_vault_init
-  changed_when: reg_vault_init.rc != 99
+  changed_when:
+  - reg_vault_init.rc != 99
+  failed_when:
+  - reg_vault_unseal.rc != 0
+  - reg_vault_unseal.rc != 99
   become: true
   tags:
   - ct-vault
@@ -156,13 +158,14 @@
     group: root
     mode: '0600'
     owner: root
+  no_log: true
   when: not vault_master
   become: true
   tags:
   - ct-vault
   - ct-vault-postinstall
 
-- name: 'unseal'
+- name: 'unseal the Vault'
   command: /usr/local/bin/unseal-vault.sh
   register: reg_vault_unseal
   become: true

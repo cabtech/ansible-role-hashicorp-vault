@@ -4,20 +4,20 @@
 # Unseal script for Hashicorp Vault - not for production
 
 dirname=/var/tmp/vault
-if [[ ! -d $dirname ]]; then
+if [[ ! -d "$dirname" ]]; then
 	echo "Cannot see $dirname - exiting"
 	exit 42
 fi
 
 fname=/usr/local/etc/bash.d/vault.sh
-if [[ ! -r $fname ]]; then
+if [[ ! -r "$fname" ]]; then
 	echo "Cannot read $fname - exiting"
 	exit 42
 fi
 source $fname
 
 fname=${dirname}/keys
-if [[ ! -r $fname ]]; then
+if [[ ! -r "$fname" ]]; then
 	echo "Cannot read $fname - exiting"
 	exit 42
 fi

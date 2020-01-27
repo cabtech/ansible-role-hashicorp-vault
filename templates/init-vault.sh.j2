@@ -1,7 +1,7 @@
 #!/bin/bash
 # MANAGED_BY_ANSIBLE
 # {{inventory_hostname}}
-# Init script for Hashicorp Vault - not for production
+# Init script for Hashicorp Vault
 
 dirname=/var/tmp/vault
 if [[ ! -d "$dirname" ]]; then
@@ -15,18 +15,6 @@ if [[ ! -r "$fname" ]]; then
 	exit 42
 else
 	source $fname
-fi
-
-fname=${dirname}/keys
-if [[ -r "$fname" ]]; then
-	echo "$fname exists - exiting"
-	exit 42
-fi
-
-fname=${dirname}/token
-if [[ -r "$fname" ]]; then
-	echo "$fname exists - exiting"
-	exit 42
 fi
 
 initialized=$(vault status -format=json | jq .initialized)
