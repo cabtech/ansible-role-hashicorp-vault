@@ -13,17 +13,19 @@ fname=/usr/local/etc/bash.d/vault.sh
 if [[ ! -r "$fname" ]]; then
 	echo "Cannot read $fname - exiting"
 	exit 42
-fi
-source $fname
-
-fname=${dirname}/keys
-if [[ ! -r "$fname" ]]; then
-	echo "Cannot read $fname - exiting"
-	exit 42
+else
+	source $fname
 fi
 
 sealed=$(vault status -format=json | jq .sealed)
 if $sealed; then
+
+	fname=${dirname}/keys
+	if [[ ! -r "$fname" ]]; then
+		echo "Cannot read $fname - exiting"
+		exit 42
+	fi
+
 	for key in $(head -3 $fname); do
 		/opt/hashicorp/bin/vault operator unseal $key
 	done
