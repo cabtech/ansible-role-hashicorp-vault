@@ -3,12 +3,6 @@
 # {{inventory_hostname}}
 # Unseal script for Hashicorp Vault
 
-dirname=/var/tmp/vault
-if [[ ! -d "$dirname" ]]; then
-	echo "Cannot see $dirname - exiting"
-	exit 42
-fi
-
 fname=/usr/local/etc/bash.d/vault.sh
 if [[ ! -r "$fname" ]]; then
 	echo "Cannot read $fname - exiting"
@@ -20,6 +14,12 @@ fi
 sealed=$(vault status -format=json | jq .sealed)
 if $sealed; then
 
+	dirname=/var/tmp/vault
+	if [[ ! -d "$dirname" ]]; then
+		echo "Cannot see $dirname - exiting"
+		exit 42
+	fi
+
 	fname=${dirname}/keys
 	if [[ ! -r "$fname" ]]; then
 		echo "Cannot read $fname - exiting"
@@ -29,6 +29,7 @@ if $sealed; then
 	for key in $(head -3 $fname); do
 		/opt/hashicorp/bin/vault operator unseal $key
 	done
+
 	sealed=$(vault status -format=json | jq .sealed)
 	if $sealed; then
 		exit 1
