@@ -38,6 +38,7 @@
     owner: root
     group: root
     mode: 0700
+  when: vault_role == 'server'
   become: true
   tags:
   - ct-vault
@@ -50,6 +51,7 @@
     owner: root
     group: root
     mode: 0700
+  when: vault_role == 'server'
   become: true
   tags:
   - ct-vault
@@ -115,9 +117,13 @@
   - ct-vault
   - ct-vault-svc
 
-- name: 'init'
+# TODO split what follows to vaultserver role
+
+- name: 'initialise Vault'
   command: /usr/local/bin/init-vault.sh
-  when: vault_master
+  when:
+  - vault_role == 'server'
+  - "'vault_solo' in group_names"
   register: reg_vault_init
   changed_when:
   - reg_vault_init.rc != 99
@@ -129,29 +135,33 @@
   - ct-vault
   - ct-vault-postinstall
 
-- name: 'fetch files (1/2)'
+- name: 'fetch files from primary (1/2)'
   fetch:
     src: /var/tmp/vault/keys
     dest: /var/tmp/vault-keys
     flat: true
-  when: vault_master
+  when:
+  - vault_role == 'server'
+  - "'vault_solo' in group_names"
   become: true
   tags:
   - ct-vault
   - ct-vault-postinstall
 
-- name: 'fetch files (2/2)'
+- name: 'fetch files from primary (2/2)'
   fetch:
     src: /var/tmp/vault/token
     dest: /var/tmp/vault-token
     flat: true
-  when: vault_master
+  when:
+  - vault_role == 'server'
+  - "'vault_solo' in group_names"
   become: true
   tags:
   - ct-vault
   - ct-vault-postinstall
 
-- name: 'push files'
+- name: 'push files to secondaries'
   copy:
     src: /var/tmp/vault-keys
     dest: /var/tmp/vault/keys
@@ -159,7 +169,9 @@
     mode: '0600'
     owner: root
   no_log: true
-  when: not vault_master
+  when:
+  - vault_role == 'server'
+  - "'vault_solo' not in group_names"
   become: true
   tags:
   - ct-vault
@@ -167,6 +179,7 @@
 
 - name: 'unseal the Vault'
   command: /usr/local/bin/unseal-vault.sh
+  when: vault_role == 'server'
   register: reg_vault_unseal
   become: true
   changed_when: reg_vault_unseal.rc != 99
@@ -183,7 +196,9 @@
     path: '{{item}}'
   loop: ['/var/tmp/vault/keys', '/var/tmp/vault/token']
   become: true
-  when: not vault_master
+  when:
+  - vault_role == 'server'
+  - "'vault_solo' not in group_names"
   tags:
   - ct-vault
   - ct-vault-postinstall
