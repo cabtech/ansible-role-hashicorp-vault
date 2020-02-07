@@ -11,6 +11,7 @@ Runs a Vault server or client
 | Name | Value | Purpose |
 | -----| ----- | ------- |
 | vault_api_port |  8200 | standard port for Vault |
+| vault_active_server |  active.vault.service.consul | use Consul DNS to find the active node |
 | vault_cluster_port |  8201 | standard port used for clustering |
 | vault_etc_dir | `/etc/vault` | where the config lives |
 | vault_format | zip | used to form the name of the archive to download |
