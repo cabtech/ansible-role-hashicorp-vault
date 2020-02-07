@@ -1,6 +1,5 @@
 #!/bin/bash
-# MANAGED_BY_ANSIBLE
-# {{inventory_hostname}}
+# MANAGED_BY_ANSIBLE {{inventory_hostname}}
 # Init script for Hashicorp Vault
 
 dirname=/var/tmp/vault
@@ -15,6 +14,8 @@ if [[ ! -r "$fname" ]]; then
 	exit 42
 else
 	source $fname
+	# override VAULT_ADDR as we don't have a primary yet
+	VAULT_ADDR=http://localhost:8200
 fi
 
 initialized=$(vault status -format=json | jq .initialized)
