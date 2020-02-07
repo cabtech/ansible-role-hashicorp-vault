@@ -6,8 +6,7 @@
     dest: '{{hashicorp_dir_staging}}'
     timeout: '{{hashicorp_internet_timeout}}'
     validate_certs: false
-  tags:
-  - ct-vault
+  tags: ct-vault
 
 - name: 'expand archive'
   unarchive:
@@ -16,8 +15,7 @@
     copy: false
   become: true
   ignore_errors: '{{ansible_check_mode|bool}}'
-  tags:
-  - ct-vault
+  tags: ct-vault
 
 - name: 'push bash include'
   template:
@@ -44,6 +42,17 @@
   - ct-vault
   - ct-vault-scripts
 
+- name: 'push Nomad server policy'
+  copy:
+    src: policy-nomad-server.hcl
+    dest: /usr/local/etc
+    owner: root
+    group: root
+    mode: 0644
+  when: vault_role == 'server'
+  become: true
+  tags: ct-vault
+
 - name: 'push unseal-vault.sh'
   template:
     src: unseal-vault.sh.j2
@@ -65,8 +74,7 @@
     state: present
     system: true
   become: true
-  tags:
-  - ct-vault
+  tags: ct-vault
 
 - name: 'create directories'
   file:
@@ -77,8 +85,7 @@
     mode: '{{item.mode}}'
   loop: '{{vault_dirs}}'
   become: true
-  tags:
-  - ct-vault
+  tags: ct-vault
 
 - name: 'render config template'
   template:
