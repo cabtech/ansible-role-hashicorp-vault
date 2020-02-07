@@ -8,8 +8,8 @@ if [[ ! -r "$fname" ]]; then
 	exit 42
 else
 	source $fname
-    # override VAULT_ADDR as we don't have a primary yet
-    VAULT_ADDR=http://localhost:8200
+	# override VAULT_ADDR as we don't have a primary yet
+	VAULT_ADDR=http://localhost:8200
 fi
 
 sealed=$(vault status -format=json | jq .sealed)
