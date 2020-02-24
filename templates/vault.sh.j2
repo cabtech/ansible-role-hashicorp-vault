@@ -1,8 +1,8 @@
 # --------------------------------
 # MANAGED_BY_ANSIBLE
-# {{inventory_hostname}}
 # bash include for Hashicorp Vault
 export PATH="{{hashicorp_dir_bin}}:${PATH}"
 alias vault={{hashicorp_dir_bin}}/vault
-export VAULT_ADDR={{vault_protocol}}://{{vault_active_server}}:{{vault_api_port}}
+export VAULT_ACTIVE_ADDR={{vault_protocol}}://{{vault_active_server}}:{{vault_api_port}}
+export VAULT_ADDR={{vault_protocol}}://{{local_ipv4}}:{{vault_api_port}}
 # --------------------------------

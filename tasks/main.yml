@@ -94,7 +94,7 @@
     owner: root
     group: root
     mode: '0644'
-  notify: handler_restart_vault
+  notify: handler_reload_vault
   become: true
   tags:
   - ct-vault
