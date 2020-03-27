@@ -1,0 +1,43 @@
+#!/bin/bash
+# MANAGED_BY_ANSIBLE
+
+fname=/usr/local/etc/bash.d/vault.sh
+if [[ ! -r "$fname" ]]; then
+	echo "Cannot read $fname - exiting"
+	exit 42
+else
+	source $fname
+	VAULT_ADDR=http://localhost:8200
+fi
+
+sealed=$(vault status -format=json | jq .sealed)
+if ! $sealed; then
+	dirname=/var/tmp/vault
+	if [[ ! -d "$dirname" ]]; then
+		echo "ERROR :: Cannot see $dirname"
+		exit 43
+	fi
+
+	nomad_file=$dirname/vars-pri-nomad.yml
+	if [[ -r "$nomad_file" ]]; then
+		exit 99
+	fi
+
+	fname=${dirname}/keys
+	if [[ ! -r "$fname" ]]; then
+		echo "ERROR :: Cannot read $fname"
+		exit 44
+	fi
+
+	cat $dirname/token | /opt/hashicorp/bin/vault login -
+
+	/opt/hashicorp/bin/vault secrets enable -version=1 kv
+	policy=/usr/local/etc/policy-nomad-server.hcl
+	if [[ -r "$policy" ]]; then
+		/opt/hashicorp/bin/vault policy write nomad-server $policy
+		/opt/hashicorp/bin/vault token create -policy nomad-server -period 60h -orphan -format=json | jq -r .auth.client_token | awk '{printf("---\nnomad_vault_token: \"%s\"\n...\n", $1)}' > $nomad_file
+	fi
+	exit 0
+fi
+
+exit 1

@@ -21,7 +21,7 @@ fi
 initialized=$(vault status -format=json | jq .initialized)
 if ! $initialized; then
 	tmpfile=$dirname/tmpinit
-	/opt/hashicorp/bin/vault operator init | egrep "Unseal Key|Initial Root Token" | tr -d ' ' | awk -F: '{printf $2}' > $tmpfile
+	/opt/hashicorp/bin/vault operator init | egrep "Unseal Key|Initial Root Token" | tr -d ' ' | awk -F: '{print $2}' > $tmpfile
 	head -5 $tmpfile > $dirname/keys
 	tail -1 $tmpfile > $dirname/token
 	chmod 400 $dirname/keys

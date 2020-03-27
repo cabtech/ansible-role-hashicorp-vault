@@ -66,6 +66,19 @@
   - ct-vault
   - ct-vault-scripts
 
+- name: 'push prepare-vault.sh'
+  template:
+    src: prepare-vault.sh.j2
+    dest: /usr/local/bin/prepare-vault.sh
+    owner: root
+    group: root
+    mode: 0700
+  when: vault_role == 'server'
+  become: true
+  tags:
+  - ct-vault
+  - ct-vault-scripts
+
 - name: 'add system account'
   user:
     name: vault
