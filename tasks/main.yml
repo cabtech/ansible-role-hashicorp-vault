@@ -1,21 +1,47 @@
 ---
 
-- name: 'download archive'
+- name: 'download archives'
   get_url:
-    url: '{{hashicorp_repo}}/vault/{{vault_version}}/{{vault_target}}'
+    url: '{{hashicorp_repo}}/vault/{{item.version}}/vault_{{item.version}}_{{hashicorp_arch}}.{{vault_format}}'
     dest: '{{hashicorp_dir_staging}}'
     timeout: '{{hashicorp_internet_timeout}}'
     validate_certs: false
-  tags: ct-vault
+  loop: '{{vault_builds}}'
+  when: item.state == 'present'
+  tags: [ct-vault]
 
-- name: 'expand archive'
-  unarchive:
-    src: '{{hashicorp_dir_staging}}/{{vault_target}}'
-    dest: '{{hashicorp_dir_bin}}'
-    copy: false
+- name: 'create package directories'
+  file:
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+    path: '{{hashicorp_dir_pkg}}/vault/{{item.version}}'
+  loop: '{{vault_builds}}'
+  when: item.state == 'present'
+  ignore_errors: '{{ansible_check_mode}}'
   become: true
-  ignore_errors: '{{ansible_check_mode|bool}}'
-  tags: ct-vault
+  tags: [ct-vault]
+
+- name: 'expand archives'
+  unarchive:
+    src: '{{hashicorp_dir_staging}}/vault_{{item.version}}_{{hashicorp_arch}}.{{vault_format}}'
+    dest: '{{hashicorp_dir_pkg}}/vault/{{item.version}}'
+    copy: false
+  loop: '{{vault_builds}}'
+  when: item.state == 'present'
+  ignore_errors: '{{ansible_check_mode}}'
+  become: true
+  tags: [ct-vault]
+
+- name: 'add symlink to active binary'
+  file:
+    dest: '{{hashicorp_dir_bin}}/vault'
+    src: '{{hashicorp_dir_pkg}}/vault/{{vault_version}}/vault'
+    state: link
+  ignore_errors: '{{ansible_check_mode}}'
+  become: true
+  tags: [ct-vault]
 
 - name: 'push bash include'
   template:
@@ -25,9 +51,7 @@
     group: root
     mode: 0644
   become: true
-  tags:
-  - ct-vault
-  - ct-vault-scripts
+  tags: [ct-vault]
 
 - name: 'push init-vault.sh'
   template:
@@ -38,9 +62,7 @@
     mode: 0700
   when: vault_role == 'server'
   become: true
-  tags:
-  - ct-vault
-  - ct-vault-scripts
+  tags: [ct-vault]
 
 - name: 'push Nomad server policy'
   copy:
@@ -51,7 +73,7 @@
     mode: 0644
   when: vault_role == 'server'
   become: true
-  tags: ct-vault
+  tags: [ct-vault]
 
 - name: 'push unseal-vault.sh'
   template:
@@ -62,9 +84,7 @@
     mode: 0700
   when: vault_role == 'server'
   become: true
-  tags:
-  - ct-vault
-  - ct-vault-scripts
+  tags: [ct-vault]
 
 - name: 'push prepare-vault.sh'
   template:
@@ -75,9 +95,7 @@
     mode: 0700
   when: vault_role == 'server'
   become: true
-  tags:
-  - ct-vault
-  - ct-vault-scripts
+  tags: [ct-vault]
 
 - name: 'add system account'
   user:
@@ -87,7 +105,7 @@
     state: present
     system: true
   become: true
-  tags: ct-vault
+  tags: [ct-vault]
 
 - name: 'create directories'
   file:
@@ -98,7 +116,7 @@
     mode: '{{item.mode}}'
   loop: '{{vault_dirs}}'
   become: true
-  tags: ct-vault
+  tags: [ct-vault]
 
 - name: 'render config template'
   template:
@@ -109,9 +127,7 @@
     mode: '0644'
   notify: handler_reload_vault
   become: true
-  tags:
-  - ct-vault
-  - ct-vault-svc
+  tags: [ct-vault]
 
 - name: 'render systemd unit file'
   template:
@@ -122,9 +138,7 @@
     mode: '0644'
   register: reg_service
   become: true
-  tags:
-  - ct-vault
-  - ct-vault-svc
+  tags: [ct-vault]
 
 - name: 'set Vault {{vault_role}} service to {{vault_state}}'
   systemd:
@@ -133,9 +147,7 @@
     enabled: true
     daemon_reload: '{{reg_service is changed}}'
   become: true
-  tags:
-  - ct-vault
-  - ct-vault-svc
+  tags: [ct-vault]
 
 # --------------------------------
 ...
