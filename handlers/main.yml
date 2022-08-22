@@ -1,12 +1,12 @@
 ---
 - name: 'handler_reload_vault'
-  systemd:
+  ansible.builtin.systemd:
     state: reloaded
     name: vault-{{vault_role}}.service
   become: true
 
 - name: 'handler_restart_vault'
-  systemd:
+  ansible.builtin.systemd:
     state: restarted
     name: vault-{{vault_role}}.service
   become: true

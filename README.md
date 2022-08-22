@@ -22,6 +22,9 @@ Runs a Vault server or client
 | vault_state |  started | state of the service |
 | vault_version |  1.2.3 | version to download |
 
+## Role Dependencies
+- `ansible-role-hashicorp-common`
+
 ## To Do
 - HI : Run service using acct=vault
 - MED : Use Let's Encrypt certificates

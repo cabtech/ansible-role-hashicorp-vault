@@ -1,9 +1,9 @@
 ---
 
 - name: 'download archives'
-  get_url:
+  ansible.builtin.get_url:
     url: '{{hashicorp_repo}}/vault/{{item.version}}/vault_{{item.version}}_{{hashicorp_arch}}.{{vault_format}}'
-    dest: '{{hashicorp_dir_staging}}'
+    dest: '{{hashicorp_dir_staging}}/vault_{{item.version}}_{{hashicorp_arch}}.{{vault_format}}'
     timeout: '{{hashicorp_internet_timeout}}'
     validate_certs: false
   loop: '{{vault_builds}}'
@@ -11,7 +11,7 @@
   tags: [ct-vault]
 
 - name: 'create package directories'
-  file:
+  ansible.builtin.file:
     state: directory
     owner: root
     group: root
@@ -24,7 +24,7 @@
   tags: [ct-vault]
 
 - name: 'expand archives'
-  unarchive:
+  ansible.builtin.unarchive:
     src: '{{hashicorp_dir_staging}}/vault_{{item.version}}_{{hashicorp_arch}}.{{vault_format}}'
     dest: '{{hashicorp_dir_pkg}}/vault/{{item.version}}'
     copy: false
@@ -35,7 +35,7 @@
   tags: [ct-vault]
 
 - name: 'add symlink to active binary'
-  file:
+  ansible.builtin.file:
     dest: '{{hashicorp_dir_bin}}/vault'
     src: '{{hashicorp_dir_pkg}}/vault/{{vault_version}}/vault'
     state: link
@@ -44,7 +44,7 @@
   tags: [ct-vault]
 
 - name: 'push bash include'
-  template:
+  ansible.builtin.template:
     src: vault.sh.j2
     dest: /usr/local/etc/bash.d/vault.sh
     owner: root
@@ -54,7 +54,7 @@
   tags: [ct-vault]
 
 - name: 'push init-vault.sh'
-  template:
+  ansible.builtin.template:
     src: init-vault.sh.j2
     dest: /usr/local/bin/init-vault.sh
     owner: root
@@ -65,7 +65,7 @@
   tags: [ct-vault]
 
 - name: 'push Nomad server policy'
-  copy:
+  ansible.builtin.copy:
     src: policy-nomad-server.hcl
     dest: /usr/local/etc
     owner: root
@@ -76,7 +76,7 @@
   tags: [ct-vault]
 
 - name: 'push unseal-vault.sh'
-  template:
+  ansible.builtin.template:
     src: unseal-vault.sh.j2
     dest: /usr/local/bin/unseal-vault.sh
     owner: root
@@ -87,7 +87,7 @@
   tags: [ct-vault]
 
 - name: 'push prepare-vault.sh'
-  template:
+  ansible.builtin.template:
     src: prepare-vault.sh.j2
     dest: /usr/local/bin/prepare-vault.sh
     owner: root
@@ -98,7 +98,7 @@
   tags: [ct-vault]
 
 - name: 'add system account'
-  user:
+  ansible.builtin.user:
     name: vault
     comment: 'Vault system account'
     shell: /bin/nologin
@@ -108,7 +108,7 @@
   tags: [ct-vault]
 
 - name: 'create directories'
-  file:
+  ansible.builtin.file:
     state: directory
     path: '{{item.path}}'
     owner: '{{item.owner}}'
@@ -119,7 +119,7 @@
   tags: [ct-vault]
 
 - name: 'render config template'
-  template:
+  ansible.builtin.template:
     src: '{{vault_role}}.json.j2'
     dest: '{{vault_etc_dir}}/{{vault_role}}.json'
     owner: root
@@ -130,7 +130,7 @@
   tags: [ct-vault]
 
 - name: 'render systemd unit file'
-  template:
+  ansible.builtin.template:
     src: vault.service.j2
     dest: /etc/systemd/system/vault-{{vault_role}}.service
     owner: root
@@ -141,7 +141,7 @@
   tags: [ct-vault]
 
 - name: 'set Vault {{vault_role}} service to {{vault_state}}'
-  systemd:
+  ansible.builtin.systemd:
     name: vault-{{vault_role}}
     state: '{{vault_state}}'
     enabled: true
