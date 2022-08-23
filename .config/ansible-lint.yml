@@ -1,0 +1,7 @@
+---
+skip_list:
+- ignore-errors
+- jinja[spacing]
+- meta-no-info
+- role-name
+...
