@@ -1,0 +1,12 @@
+---
+# --------------------------------
+
+- name: "Install required packages"
+  ansible.builtin.apt:
+    name: "{{ vault_dependent_pkgs.debian }}"
+    state: present
+  become: true
+  tags: [ct-vault]
+
+# --------------------------------
+...

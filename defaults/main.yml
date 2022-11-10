@@ -1,8 +1,12 @@
 ---
+# --------------------------------
+
 vault_active_server: 'active.vault.service.consul'
 vault_api_port: 8200
 vault_cluster_port: 8201
-vault_dependent_pkgs: ['jq']
+vault_dependent_pkgs:
+  debian: ['jq']
+  redhat: ['jq']
 vault_etc_dir: /etc/vault
 vault_format: zip
 vault_lib_dir: /var/lib/vault
@@ -19,8 +23,10 @@ vault_builds:
 - {version: '1.11.2', state: present}
 
 vault_dirs:
-- {path: '{{vault_etc_dir}}', owner: 'root', group: 'root', mode: '0775'}
-- {path: '{{vault_lib_dir}}', owner: 'vault', group: 'vault', mode: '0750'}
-- {path: '{{vault_log_dir}}', owner: 'root', group: 'vault', mode: '0775'}
-- {path: '{{vault_tmp_dir}}', owner: 'root', group: 'vault', mode: '0750'}
+- {path: '{{ vault_etc_dir }}', owner: 'root', group: 'root', mode: '0775'}
+- {path: '{{ vault_lib_dir }}', owner: 'vault', group: 'vault', mode: '0750'}
+- {path: '{{ vault_log_dir }}', owner: 'root', group: 'vault', mode: '0775'}
+- {path: '{{ vault_tmp_dir }}', owner: 'root', group: 'vault', mode: '0750'}
+
+# --------------------------------
 ...

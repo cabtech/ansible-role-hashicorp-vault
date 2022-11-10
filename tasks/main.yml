@@ -1,57 +1,57 @@
 ---
+# --------------------------------
 
-- name: 'Install required packages'
-  ansible.builtin.apt:
-    name: '{{vault_dependent_pkgs}}'
-    state: present
-  become: true
-  tags: [ct-vault]
+- name: "Include {{ ct_family }} tasks"
+  include_tasks: setup_{{ ct_family }}.yml
+  when:
+  - ct_family == "debian" or ct_family == "redhat"
+  tags: [ct-hashicorp]
 
-- name: 'Download archives'
+- name: "Download archives"
   ansible.builtin.get_url:
-    url: '{{hashicorp_repo}}/vault/{{item.version}}/vault_{{item.version}}_{{hashicorp_arch}}.{{vault_format}}'
-    dest: '{{hashicorp_dir_staging}}/vault_{{item.version}}_{{hashicorp_arch}}.{{vault_format}}'
-    mode: '0755'
-    timeout: '{{hashicorp_internet_timeout}}'
+    url: "{{ hashicorp_repo }}/vault/{{ item.version }}/vault_{{ item.version }}_{{ hashicorp_arch }}.{{ vault_format }}"
+    dest: "{{ hashicorp_dir_staging }}/vault_{{ item.version }}_{{ hashicorp_arch }}.{{ vault_format }}"
+    mode: "0755"
+    timeout: "{{ hashicorp_internet_timeout }}"
     validate_certs: false
-  loop: '{{vault_builds}}'
-  when: item.state == 'present'
+  loop: "{{ vault_builds }}"
+  when: item.state == "present"
   tags: [ct-vault]
 
-- name: 'Create package directories'
+- name: "Create package directories"
   ansible.builtin.file:
     state: directory
     owner: root
     group: root
-    mode: '0755'
-    path: '{{hashicorp_dir_pkg}}/vault/{{item.version}}'
-  loop: '{{vault_builds}}'
-  when: item.state == 'present'
-  ignore_errors: '{{ansible_check_mode}}'
+    mode: "0755"
+    path: "{{ hashicorp_dir_pkg }}/vault/{{ item.version }}"
+  loop: "{{ vault_builds }}"
+  when: item.state == "present"
+  ignore_errors: "{{ ansible_check_mode }}"
   become: true
   tags: [ct-vault]
 
-- name: 'Expand archives'
+- name: "Expand archives"
   ansible.builtin.unarchive:
-    src: '{{hashicorp_dir_staging}}/vault_{{item.version}}_{{hashicorp_arch}}.{{vault_format}}'
-    dest: '{{hashicorp_dir_pkg}}/vault/{{item.version}}'
+    src: "{{ hashicorp_dir_staging }}/vault_{{ item.version }}_{{ hashicorp_arch }}.{{ vault_format }}"
+    dest: "{{ hashicorp_dir_pkg }}/vault/{{ item.version }}"
     copy: false
-  loop: '{{vault_builds}}'
-  when: item.state == 'present'
-  ignore_errors: '{{ansible_check_mode}}'
+  loop: "{{ vault_builds }}"
+  when: item.state == "present"
+  ignore_errors: "{{ ansible_check_mode }}"
   become: true
   tags: [ct-vault]
 
-- name: 'Add symlink to active binary'
+- name: "Add symlink to active binary"
   ansible.builtin.file:
-    dest: '{{hashicorp_dir_bin}}/vault'
-    src: '{{hashicorp_dir_pkg}}/vault/{{vault_version}}/vault'
+    dest: "{{ hashicorp_dir_bin }}/vault"
+    src: "{{ hashicorp_dir_pkg }}/vault/{{ vault_version }}/vault"
     state: link
-  ignore_errors: '{{ansible_check_mode}}'
+  ignore_errors: "{{ ansible_check_mode }}"
   become: true
   tags: [ct-vault]
 
-- name: 'Push bash include'
+- name: "Push bash include"
   ansible.builtin.template:
     src: vault.sh.j2
     dest: /usr/local/etc/bash.d/vault.sh
@@ -61,99 +61,99 @@
   become: true
   tags: [ct-vault]
 
-- name: 'Push init-vault.sh'
+- name: "Push init-vault.sh"
   ansible.builtin.template:
     src: init-vault.sh.j2
     dest: /usr/local/bin/init-vault.sh
     owner: root
     group: root
     mode: 0700
-  when: vault_role == 'server'
+  when: vault_role == "server"
   become: true
   tags: [ct-vault]
 
-- name: 'Push Nomad server policy'
+- name: "Push Nomad server policy"
   ansible.builtin.copy:
     src: policy-nomad-server.hcl
     dest: /usr/local/etc
     owner: root
     group: root
     mode: 0644
-  when: vault_role == 'server'
+  when: vault_role == "server"
   become: true
   tags: [ct-vault]
 
-- name: 'Push unseal-vault.sh'
+- name: "Push unseal-vault.sh"
   ansible.builtin.template:
     src: unseal-vault.sh.j2
     dest: /usr/local/bin/unseal-vault.sh
     owner: root
     group: root
     mode: 0700
-  when: vault_role == 'server'
+  when: vault_role == "server"
   become: true
   tags: [ct-vault]
 
-- name: 'Push prepare-vault.sh'
+- name: "Push prepare-vault.sh"
   ansible.builtin.template:
     src: prepare-vault.sh.j2
     dest: /usr/local/bin/prepare-vault.sh
     owner: root
     group: root
     mode: 0700
-  when: vault_role == 'server'
+  when: vault_role == "server"
   become: true
   tags: [ct-vault]
 
-- name: 'Add system account'
+- name: "Add system account"
   ansible.builtin.user:
     name: vault
-    comment: 'Vault system account'
+    comment: "Vault system account"
     shell: /bin/nologin
     state: present
     system: true
   become: true
   tags: [ct-vault]
 
-- name: 'Create directories'
+- name: "Create directories"
   ansible.builtin.file:
     state: directory
-    path: '{{item.path}}'
-    owner: '{{item.owner}}'
-    group: '{{item.group}}'
-    mode: '{{item.mode}}'
-  loop: '{{vault_dirs}}'
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop: "{{ vault_dirs }}"
   become: true
   tags: [ct-vault]
 
-- name: 'Render config template'
+- name: "Render config template"
   ansible.builtin.template:
-    src: '{{vault_role}}.json.j2'
-    dest: '{{vault_etc_dir}}/{{vault_role}}.json'
+    src: "{{ vault_role }}.json.j2"
+    dest: "{{ vault_etc_dir }}/{{ vault_role }}.json"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: Handler_Reload_Vault
   become: true
   tags: [ct-vault]
 
-- name: 'Render systemd unit file'
+- name: "Render systemd unit file"
   ansible.builtin.template:
     src: vault.service.j2
-    dest: /etc/systemd/system/vault-{{vault_role}}.service
+    dest: /etc/systemd/system/vault-{{ vault_role }}.service
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   register: reg_service
   become: true
   tags: [ct-vault]
 
-- name: 'Set Vault {{vault_role}} service to {{vault_state}}'
+- name: "Set Vault {{ vault_role }} service to {{ vault_state }}"
   ansible.builtin.systemd:
-    name: vault-{{vault_role}}
-    state: '{{vault_state}}'
+    name: vault-{{ vault_role }}
+    state: "{{ vault_state }}"
     enabled: true
-    daemon_reload: '{{reg_service is changed}}'
+    daemon_reload: "{{ reg_service is changed }}"
   become: true
   tags: [ct-vault]
 
