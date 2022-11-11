@@ -105,6 +105,17 @@
   become: true
   tags: [ct-vault]
 
+- name: "Push upload script"
+  ansible.builtin.copy:
+    dest: /usr/local/bin/push-data-to-vault.sh
+    group: root
+    mode: 0755
+    owner: root
+    src: push-data-to-vault.sh
+  when: vault_role == "server"
+  become: true
+  tags: [ct-vault]
+
 - name: "Add system account"
   ansible.builtin.user:
     name: vault
