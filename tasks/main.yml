@@ -180,4 +180,63 @@
   tags: [ct-vault]
 
 # --------------------------------
+# Vault manifests
+
+- name: "Generate policies"
+  ansible.builtin.template:
+    dest: "{{ vault_cfg_dir }}/policy.d/{{ item.name }}.hcl"
+    mode: "0600"
+    src: manifest-policy.hcl.j2
+  vars:
+    outer_grants: "{{ item.grants | default([]) }}"
+  loop: "{{ vault_policys }}"
+  loop_control:
+    label: "{{ item.name }}"
+  become: true
+  tags: [ct-vault]
+
+- name: "Generate manifest entries for policies"
+  ansible.builtin.template:
+    dest: "{{ vault_cfg_dir }}/manifest.d/policy-{{ item.name }}.txt"
+    mode: "0600"
+    src: manifest.txt.j2
+  vars:
+    manifest_etype: policy
+    manifest_filename: "{{ item.name }}"
+  loop: "{{ vault_policys }}"
+  loop_control:
+    label: "{{ item.name }}"
+  become: true
+  tags: [ct-vault]
+
+- name: "Generate nomad-cluster role"
+  ansible.builtin.template:
+    dest: "{{ vault_cfg_dir }}/role.d/role-nomad-cluster.json"
+    mode: "0600"
+    src: manifest-nomad-role.json.j2
+  become: true
+  tags: [ct-vault]
+
+- name: "Generate manifest entry for nomad-cluster role"
+  ansible.builtin.template:
+    dest: "{{ vault_cfg_dir }}/manifest.d/role-nomad-cluster.txt"
+    mode: "0600"
+    src: manifest.txt.j2
+  vars:
+    manifest_etype: role
+    manifest_path: "/auth/token/roles/nomad-cluster"
+    manifest_filename: "role-nomad-cluster"
+  become: true
+  tags: [ct-vault]
+
+- name: "Assemble vault manifest"
+  ansible.builtin.assemble:
+    dest: "{{ vault_cfg_dir }}/manifest.txt"
+    ignore_hidden: true
+    mode: "0600"
+    src: "{{ vault_cfg_dir }}/manifest.d"
+  become: true
+  tags: [ct-vault]
+
+# --------------------------------
 ...

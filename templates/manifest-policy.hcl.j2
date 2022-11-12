@@ -1,0 +1,15 @@
+{# valid perms = ["create", "read", "update", "patch", "delete", "list"] #}
+{% for grant in outer_grants %}
+
+path "{{ grant.path }}" {
+{% if grant.perms is defined %}
+  capabilities = [
+{% for perm in grant.perms %}
+    "{{ perm }}",
+{% endfor %}
+  ]
+{% else %}
+  capabilities = ["read"]
+{% endif %}
+}
+{% endfor %}

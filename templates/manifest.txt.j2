@@ -1,0 +1,9 @@
+{% if manifest_etype == "credential" %}
+{{ manifest_etype }} kv/{{ manifest_filename }} {{ manifest_etype }}.d/{{ manifest_filename }}.json
+{% elif manifest_etype == "policy" %}
+{{ manifest_etype }} {{ manifest_filename }} {{ manifest_etype }}.d/{{ manifest_filename }}.hcl
+{% elif manifest_etype == "role" %}
+{{ manifest_etype }} {{ manifest_path }} {{ manifest_etype }}.d/{{ manifest_filename }}.json
+{% else %}
+# unexpected entity type {{ manifest_etype }} {{ manifest_path }}
+{% endif %}
