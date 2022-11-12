@@ -7,6 +7,28 @@
   - ct_family == "debian" or ct_family == "redhat"
   tags: [ct-hashicorp]
 
+- name: "Create main directories"
+  ansible.builtin.file:
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    path: "{{ item.path }}"
+    state: directory
+  loop: "{{ vault_dirs }}"
+  become: true
+  tags: [ct-vault]
+
+- name: "Create entity directories"
+  ansible.builtin.file:
+    group: root
+    mode: "0700"
+    owner: root
+    path: "{{ vault_cfg_dir }}/{{ item }}"
+    state: directory
+  loop: "{{ vault_cfg_subdirs }}"
+  become: true
+  tags: [ct-vault]
+
 - name: "Download archives"
   ansible.builtin.get_url:
     url: "{{ hashicorp_repo }}/vault/{{ item.version }}/vault_{{ item.version }}_{{ hashicorp_arch }}.{{ vault_format }}"
@@ -123,17 +145,6 @@
     shell: /bin/nologin
     state: present
     system: true
-  become: true
-  tags: [ct-vault]
-
-- name: "Create directories"
-  ansible.builtin.file:
-    state: directory
-    path: "{{ item.path }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
-    mode: "{{ item.mode }}"
-  loop: "{{ vault_dirs }}"
   become: true
   tags: [ct-vault]
 
