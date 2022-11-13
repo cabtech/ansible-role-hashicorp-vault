@@ -180,7 +180,27 @@
   tags: [ct-vault]
 
 # --------------------------------
-# Vault manifests
+# Vault credentials
+
+- name: "Generate manifest entries for credentials"
+  ansible.builtin.template:
+    dest: "{{ vault_cfg_dir }}/manifest.d/credential-{{ manifest_filename }}.txt"
+    mode: "0644"
+    src: manifest.txt.j2
+  vars:
+    manifest_etype: credential
+    manifest_filename: '{{ item.filename | default( item.path | regex_replace("/", "-")) }}'
+    manifest_path: "{{ item.path }}"
+    manifest_region: "{{ item.region_name | default(vault_region) }}"
+    manifest_secret_name: "{{ item.secret_name }}"
+  loop: "{{ vault_credentials }}"
+  loop_control:
+    label: "{{ item.path }}"
+  become: true
+  tags: [ct-vault]
+
+# --------------------------------
+# Vault policys
 
 - name: "Generate policies"
   ansible.builtin.template:
@@ -209,6 +229,9 @@
   become: true
   tags: [ct-vault]
 
+# --------------------------------
+# Vault roles
+
 - name: "Generate nomad-cluster role"
   ansible.builtin.template:
     dest: "{{ vault_cfg_dir }}/role.d/role-nomad-cluster.json"
@@ -229,7 +252,7 @@
   become: true
   tags: [ct-vault]
 
-- name: "Assemble vault manifest"
+- name: "Assemble Vault manifest"
   ansible.builtin.assemble:
     dest: "{{ vault_cfg_dir }}/manifest.txt"
     ignore_hidden: true

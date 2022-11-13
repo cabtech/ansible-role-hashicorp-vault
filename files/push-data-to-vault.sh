@@ -4,13 +4,13 @@ prog=$(basename $0)
 
 ss_doit=false
 ss_manifest=manifest.txt
-ss_purge=false
+ss_purge=true
 ss_report=false
-while getopts d:m:prx arg; do
+while getopts Pd:m:rx arg; do
 	case $arg in
+		P) ss_purge=false;;
 		d) ss_workdir="${OPTARG}";;
-		m) ss_manifest=true;;
-		p) ss_purge=true;;
+		m) ss_manifest="${OPTARG}";;
 		r) ss_report=true;;
 		x) ss_doit=true;;
 		*) echo 'Bad arg - exiting'; exit 42;;
@@ -34,7 +34,12 @@ cd $ss_workdir
 if [[ ! -r "$ss_manifest" ]]; then
 	echo "Cannot read $ss_manifest"
 else
-	grep -v '#' $ss_manifest | sort -u | while read etype entity filename; do
+	# pull secrets from AWS
+	grep '^credential ' manifest.txt  | while read skip1 skip2 efile region_name secret_id; do
+		aws secretsmanager get-secret-value --region ${region_name} --secret-id ${secret_id} | jq -r .SecretString > ${efile}
+	done
+
+	grep -v '#' $ss_manifest | sort -u | while read etype entity filename skip4 skip5 unused; do
 		if [[ ! -r "$filename" ]]; then
 			echo "ERROR :: $prog :: cannot read $filename"
 		else
