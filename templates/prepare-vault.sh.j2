@@ -32,10 +32,10 @@ if ! $sealed; then
 	cat $dirname/token | /opt/hashicorp/bin/vault login -
 
 	/opt/hashicorp/bin/vault secrets enable -version=1 kv
-	policy=/usr/local/etc/policy-nomad-server.hcl
+	policy=/usr/local/etc/vault/policy-nomad-cluster.hcl
 	if [[ -r "$policy" ]]; then
-		/opt/hashicorp/bin/vault policy write nomad-server $policy
-		/opt/hashicorp/bin/vault token create -policy nomad-server -period 60h -orphan -format=json | jq -r .auth.client_token | awk '{printf("---\nnomad_vault_token: \"%s\"\n...\n", $1)}' > $nomad_file
+		/opt/hashicorp/bin/vault policy write nomad-cluster $policy
+		/opt/hashicorp/bin/vault token create -policy nomad-cluster -period 60h -orphan -format=json | jq -r .auth.client_token | awk '{printf("---\nnomad_vault_token: \"%s\"\n...\n", $1)}' > $nomad_file
 	fi
 	exit 0
 fi

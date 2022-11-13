@@ -94,10 +94,10 @@
   become: true
   tags: [ct-vault]
 
-- name: "Push Nomad server policy"
+- name: "Push Nomad policy"
   ansible.builtin.copy:
-    src: policy-nomad-server.hcl
-    dest: /usr/local/etc
+    src: policy-nomad-cluster.hcl
+    dest: /usr/local/etc/vault
     owner: root
     group: root
     mode: 0644
