@@ -5,7 +5,7 @@
   include_tasks: setup-{{ ct_family }}.yml
   when:
   - ct_family == "debian" or ct_family == "redhat"
-  tags: [ct-hashicorp]
+  tags: [ct-vault]
 
 - name: "Create main directories"
   ansible.builtin.file:
