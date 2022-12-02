@@ -148,13 +148,15 @@
   become: true
   tags: [ct-vault]
 
-- name: "Render config template"
+- name: "Render config template (no_log)"
   ansible.builtin.template:
-    src: "{{ vault_role }}.json.j2"
+    backup: true
     dest: "{{ vault_etc_dir }}/{{ vault_role }}.json"
-    owner: root
     group: root
-    mode: "0644"
+    mode: "0600"
+    owner: root
+    src: "{{ vault_role }}.json.j2"
+  no_log: true
   notify: Handler_Reload_Vault
   become: true
   tags: [ct-vault]
