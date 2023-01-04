@@ -1,6 +1,7 @@
 ---
 # --------------------------------
 
+vault_acct: vault
 vault_active_server: 'active.vault.service.consul'
 vault_api_port: 8200
 vault_cfg_dir: /usr/local/etc/vault

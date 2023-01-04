@@ -7,6 +7,15 @@
   - ct_family == "debian" or ct_family == "redhat"
   tags: [ct-vault]
 
+- name: "Create system account"
+  ansible.builtin.user:
+    name: "{{ vault_acct }}"
+    comment: "Vault system account"
+    system: true
+    state: present
+  become: true
+  tags: [ct-vault]
+
 - name: "Create main directories"
   ansible.builtin.file:
     group: "{{ item.group }}"
@@ -191,7 +200,7 @@
     src: manifest.txt.j2
   vars:
     manifest_etype: credential
-    manifest_filename: '{{ item.filename | default( item.path | regex_replace("/", "-")) }}'
+    manifest_filename: '{{ item.filename | default(item.path | regex_replace("/", "-")) }}'
     manifest_path: "{{ item.path }}"
     manifest_region: "{{ item.region_name | default(vault_region) }}"
     manifest_secret_name: "{{ item.secret_name }}"
