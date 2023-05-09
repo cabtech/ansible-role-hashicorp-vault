@@ -1,0 +1,52 @@
+# MANAGED_BY_ANSIBLE
+# Vault version 1.13
+
+api_addr          = "http://{{ local_ipv4 }}:{{ vault_api_port }}"
+cluster_addr      = "http://{{ local_ipv4 }}:{{ vault_cluster_port }}"
+default_lease_ttl = "10h"
+disable_mlock     = true
+max_lease_ttl     = "10h"
+log_level         = "debug"
+ui                = {{ vault_enable_ui | bool | lower }}
+
+listener "tcp" {
+  address         = "127.0.0.1:{{ vault_api_port }}"
+  cluster_address = "127.0.0.1:{{ vault_cluster_port }}"
+  tls_disable     = 1
+}
+
+listener "tcp" {
+  address         = "{{ local_ipv4 }}:{{ vault_api_port }}"
+  cluster_address = "{{ local_ipv4 }}:{{ vault_cluster_port }}"
+  tls_disable     = 1
+}
+{%	if vault_storage_type == "consul" %}
+
+storage "consul" {
+  address = "127.0.0.1:8500"
+  path    = "vault"
+{%		if vault_consul_token is defined %}
+  token   = "{{ vault_consul_token }}"
+{%		 endif %}
+}
+{%	else %}
+
+service_registration "consul" {
+  address = "http://127.0.0.1:8500"
+{%		if vault_consul_token is defined %}
+  token   = "{{ vault_consul_token }}"
+{%		 endif %}
+}
+
+storage "raft" {
+  path = "{{ vault_storage_dir }}"
+{%		for addr in vault_servers %}
+{%			if local_ipv4 != addr %}
+
+  retry_join {
+    leader_api_addr = "http://{{ addr }}:{{ vault_api_port }}"
+  }
+{%			endif %}
+{%		endfor %}
+}
+{%	endif %}

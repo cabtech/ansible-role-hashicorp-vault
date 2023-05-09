@@ -3,18 +3,16 @@ Description=Vault service process
 Documentation=https://vaultproject.io/docs
 Requires=network-online.target
 After=network-online.target
-ConditionFileNotEmpty={{vault_etc_dir}}/server.json
+ConditionFileNotEmpty={{ vault_etc_dir }}/server.hcl
  
 [Service]
-EnvironmentFile=-/etc/sysconfig/vault
-Environment=GOMAXPROCS=2
-Restart=on-failure
-ExecStart={{hashicorp_dir_bin}}/vault server -config={{vault_etc_dir}}/server.json
-StandardOutput={{vault_log_dir}}/output.log
-StandardError={{vault_log_dir}}/error.log
-LimitMEMLOCK=infinity
+Environment="VAULT_ENABLE_FILE_PERMISSIONS_CHECK=1"
+Environment="GOMAXPROCS=2"
 ExecReload=/bin/kill -HUP $MAINPID
+ExecStart={{ hashicorp_dir_bin }}/vault server -config={{ vault_etc_dir }}/server.hcl
 KillSignal=SIGTERM
+LimitMEMLOCK=infinity
+Restart=on-failure
  
 [Install]
 WantedBy=multi-user.target

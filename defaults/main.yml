@@ -11,16 +11,18 @@ vault_credentials: []
 vault_dependent_pkgs:
   debian: ["jq"]
   redhat: ["jq"]
+vault_enable_ui: true
 vault_etc_dir: /etc/vault
 vault_format: zip
 vault_lib_dir: /var/lib/vault
 vault_log_dir: /var/log/vault
 vault_policys: []
 vault_protocol: "http"
-vault_master: false
 vault_region: "NoSuchRegion"
 vault_role: client
 vault_state: started
+vault_storage_dir: "{{ vault_lib_dir }}/raft"
+vault_storage_type: raft  # AKA internal
 vault_tmp_dir: /var/tmp/vault
 vault_version: "1.13.2"
 
@@ -33,6 +35,7 @@ vault_dirs:
 - {path: "{{ vault_etc_dir }}", owner: "root", group: "root", mode: "0775"}
 - {path: "{{ vault_lib_dir }}", owner: "vault", group: "vault", mode: "0750"}
 - {path: "{{ vault_log_dir }}", owner: "root", group: "vault", mode: "0775"}
+- {path: "{{ vault_storage_dir }}", owner: "vault", group: "vault", mode: "0750"}
 - {path: "{{ vault_tmp_dir }}", owner: "root", group: "vault", mode: "0750"}
 
 # --------------------------------
