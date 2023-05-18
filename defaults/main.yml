@@ -9,7 +9,7 @@ vault_cfg_subdirs: ["credential.d", "manifest.d", "policy.d", "role.d"]
 vault_cluster_port: 8201
 vault_credentials: []
 vault_dependent_pkgs:
-  debian: ["jq"]
+  debian: ["awscli", "jq"]
   redhat: ["jq"]
 vault_enable_ui: true
 vault_etc_dir: /etc/vault
