@@ -7,6 +7,7 @@ vault_api_port: 8200
 vault_cfg_dir: /usr/local/etc/vault
 vault_cfg_subdirs: ["credential.d", "manifest.d", "policy.d", "role.d"]
 vault_cluster_port: 8201
+vault_consul_addr: "127.0.0.1"
 vault_credentials: []
 vault_dependent_pkgs:
   debian: ["awscli", "jq"]

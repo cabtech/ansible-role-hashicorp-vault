@@ -32,7 +32,7 @@ storage "consul" {
 {%	else %}
 
 service_registration "consul" {
-  address = "http://127.0.0.1:8500"
+  address = "http://{{ vault_consul_addr }}:8500"
 {%		if vault_consul_token is defined %}
   token   = "{{ vault_consul_token }}"
 {%		 endif %}
