@@ -99,7 +99,7 @@
     dest: /usr/local/bin/init-vault.sh
     owner: root
     group: root
-    mode: "0700"
+    mode: "0500"
   when: vault_role == "server"
   become: true
   tags: [ct-vault]
@@ -121,7 +121,7 @@
     dest: /usr/local/bin/unseal-vault.sh
     owner: root
     group: root
-    mode: "0700"
+    mode: "0500"
   when: vault_role == "server"
   become: true
   tags: [ct-vault]
@@ -132,7 +132,7 @@
     dest: /usr/local/bin/prepare-vault.sh
     owner: root
     group: root
-    mode: "0700"
+    mode: "0500"
   when: vault_role == "server"
   become: true
   tags: [ct-vault]
