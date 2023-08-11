@@ -20,6 +20,7 @@ if ! $sealed; then
 
 	nomad_file=$dirname/vars-pri-nomad.yml
 	if [[ -r "$nomad_file" ]]; then
+		echo "ERROR :: Stopping as $nomad_file exists"
 		exit 99
 	fi
 
