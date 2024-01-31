@@ -1,5 +1,6 @@
 ---
 skip_list:
 - name[template]
+- role-name
 - yaml[indentation]
 ...
