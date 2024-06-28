@@ -1,12 +1,13 @@
 ---
 # --------------------------------
 
-- name: "Install required packages"
-  ansible.builtin.yum:
+- name: "RedHat : Install required packages"
+  ansible.builtin.dnf:
     name: "{{ vault_dependent_pkgs.redhat }}"
     state: present
+  when: ansible_os_family == "RedHat"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 # --------------------------------
 ...

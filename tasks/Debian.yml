@@ -1,12 +1,13 @@
 ---
 # --------------------------------
 
-- name: "Install required packages"
+- name: "Debian : Install required packages"
   ansible.builtin.apt:
     name: "{{ vault_dependent_pkgs.debian }}"
     state: present
+  when: ansible_os_family == "Debian"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 # --------------------------------
 ...

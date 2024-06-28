@@ -1,11 +1,24 @@
 ---
 # --------------------------------
 
-- name: "Include {{ ct_family }} tasks"
-  ansible.builtin.include_tasks: setup-{{ ct_family }}.yml
-  when:
-  - ct_family == "debian" or ct_family == "redhat"
-  tags: [ct-vault]
+- name: "Include variables wrapper"
+  ansible.builtin.include_tasks:
+    file: variables.yml
+  tags: ["ct-vault"]
+
+- name: "Disto/Family tasks (FF)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('ansible.builtin.first_found', params) }}"
+  vars:
+    params:
+      files:
+      - "{{ ansible_distribution }}-{{ ansible_distribution_major_version.split('.')[0] }}.yml"
+      - "{{ ansible_distribution }}.yml"
+      - "{{ ansible_os_family }}.yml"
+      - "default.yml"
+  tags: ["ct-vault"]
+
+# --------------------------------
 
 - name: "Create system account"
   ansible.builtin.user:
@@ -14,7 +27,7 @@
     system: true
     state: present
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Create main directories"
   ansible.builtin.file:
@@ -25,7 +38,7 @@
     state: directory
   loop: "{{ vault_dirs }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Create entity directories"
   ansible.builtin.file:
@@ -36,7 +49,7 @@
     state: directory
   loop: "{{ vault_cfg_subdirs }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Download archives"
   ansible.builtin.get_url:
@@ -48,7 +61,7 @@
   loop: "{{ vault_builds }}"
   when: item.state == "present"
   ignore_errors: "{{ ansible_check_mode }}"
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Create package directories"
   ansible.builtin.file:
@@ -61,7 +74,7 @@
   when: item.state == "present"
   ignore_errors: "{{ ansible_check_mode }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Expand archives"
   ansible.builtin.unarchive:
@@ -72,7 +85,7 @@
   when: item.state == "present"
   ignore_errors: "{{ ansible_check_mode }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Add symlink to active binary"
   ansible.builtin.file:
@@ -81,7 +94,7 @@
     state: link
   ignore_errors: "{{ ansible_check_mode }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Push bash include"
   ansible.builtin.template:
@@ -91,7 +104,7 @@
     group: root
     mode: "0644"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Push init-vault.sh"
   ansible.builtin.template:
@@ -102,7 +115,7 @@
     mode: "0500"
   when: vault_role == "server"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Push Nomad policy"
   ansible.builtin.copy:
@@ -113,7 +126,7 @@
     mode: "0644"
   when: vault_role == "server"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Push unseal-vault.sh"
   ansible.builtin.template:
@@ -124,7 +137,7 @@
     mode: "0500"
   when: vault_role == "server"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Push prepare-vault.sh"
   ansible.builtin.template:
@@ -135,7 +148,7 @@
     mode: "0500"
   when: vault_role == "server"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Push upload script"
   ansible.builtin.copy:
@@ -146,7 +159,7 @@
     src: push-data-to-vault.sh
   when: vault_role == "server"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Add system account"
   ansible.builtin.user:
@@ -156,7 +169,7 @@
     state: present
     system: true
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Render config template (no_log)"
   ansible.builtin.template:
@@ -169,7 +182,7 @@
   no_log: true
   notify: Handler_Reload_Vault
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Render systemd unit file"
   ansible.builtin.template:
@@ -180,7 +193,7 @@
     mode: "0644"
   register: reg_service
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Set Vault {{ vault_role }} service to {{ vault_state }}"
   ansible.builtin.systemd:
@@ -189,7 +202,7 @@
     enabled: true
     daemon_reload: "{{ reg_service is changed }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 # --------------------------------
 # Vault credentials
@@ -209,7 +222,7 @@
   loop_control:
     label: "{{ item.path }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 # --------------------------------
 # Vault policys
@@ -225,7 +238,7 @@
   loop_control:
     label: "{{ item.name }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Generate manifest entries for policies"
   ansible.builtin.template:
@@ -239,7 +252,7 @@
   loop_control:
     label: "{{ item.name }}"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 # --------------------------------
 # Vault roles
@@ -250,7 +263,7 @@
     mode: "0600"
     src: manifest-nomad-role.json.j2
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Generate manifest entry for nomad-cluster role"
   ansible.builtin.template:
@@ -262,7 +275,7 @@
     manifest_path: "/auth/token/roles/nomad-cluster"
     manifest_filename: "role-nomad-cluster"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 - name: "Assemble Vault manifest"
   ansible.builtin.assemble:
@@ -271,7 +284,7 @@
     mode: "0600"
     src: "{{ vault_cfg_dir }}/manifest.d"
   become: true
-  tags: [ct-vault]
+  tags: ["ct-vault"]
 
 # --------------------------------
 ...
