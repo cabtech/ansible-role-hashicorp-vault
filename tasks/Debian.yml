@@ -5,7 +5,7 @@
   ansible.builtin.apt:
     name: "{{ vault_dependent_pkgs.debian }}"
     state: present
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
   become: true
   tags: ["ct-vault"]
 

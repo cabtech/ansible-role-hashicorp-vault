@@ -5,7 +5,7 @@
   ansible.builtin.dnf:
     name: "{{ vault_dependent_pkgs.redhat }}"
     state: present
-  when: ansible_os_family == "RedHat"
+  when: ansible_facts['os_family'] == "RedHat"
   become: true
   tags: ["ct-vault"]
 
