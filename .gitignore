@@ -1,1 +1,3 @@
 .alint
+.ansible/
+src/
