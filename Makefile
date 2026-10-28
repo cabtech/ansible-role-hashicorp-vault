@@ -1,9 +1,13 @@
-lint: .lintyaml .lintansible
+lint: .lintyaml .lintansible .lintshell
 
 .PHONY: clean init-uv lint update-uv
 
 .lintansible: */*.yml
 	uv run ansible-lint --config-file=.config/ansible-lint.yml .
+	@touch $@
+
+.lintshell: files/push-data-to-vault.sh
+	shellcheck files/push-data-to-vault.sh
 	@touch $@
 
 .lintyaml: */*.yml
