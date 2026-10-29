@@ -3,7 +3,7 @@
 
 - name: "Debian : Install required packages"
   ansible.builtin.apt:
-    name: "{{ vault_dependent_pkgs.debian }}"
+    name: "{{ vault_dependent_pkgs }}"
     state: present
   when: ansible_facts['os_family'] == "Debian"
   become: true

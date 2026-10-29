@@ -9,9 +9,6 @@ vault_cfg_subdirs: ["credential.d", "manifest.d", "policy.d", "role.d"]
 vault_cluster_port: 8201
 vault_consul_addr: "127.0.0.1"
 vault_credentials: []
-vault_dependent_pkgs:
-  debian: ["awscli", "jq"]
-  redhat: ["jq"]
 vault_enable_ui: true
 vault_etc_dir: /etc/vault
 vault_format: zip

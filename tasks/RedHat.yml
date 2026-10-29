@@ -3,7 +3,7 @@
 
 - name: "RedHat : Install required packages"
   ansible.builtin.dnf:
-    name: "{{ vault_dependent_pkgs.redhat }}"
+    name: "{{ vault_dependent_pkgs }}"
     state: present
   when: ansible_facts['os_family'] == "RedHat"
   become: true
