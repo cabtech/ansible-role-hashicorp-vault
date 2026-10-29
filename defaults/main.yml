@@ -21,7 +21,8 @@ vault_policys: []
 vault_protocol: "http"
 vault_region: "NoSuchRegion"
 vault_role: client
-vault_state: started
+vault_svc_enabled: true
+vault_svc_state: started
 vault_storage_dir: "{{ vault_lib_dir }}/raft"
 vault_storage_type: raft  # AKA internal
 vault_tmp_dir: /var/tmp/vault

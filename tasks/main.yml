@@ -195,12 +195,12 @@
   become: true
   tags: ["ct-vault"]
 
-- name: "Set Vault {{ vault_role }} service to {{ vault_state }}"
+- name: "Manage Vault service"
   ansible.builtin.systemd:
-    name: vault-{{ vault_role }}
-    state: "{{ vault_state }}"
-    enabled: true
     daemon_reload: "{{ reg_service is changed }}"
+    enabled: "{{ vault_svc_enabled | bool }}"
+    name: "vault-{{ vault_role }}"
+    state: "{{ vault_svc_state }}"
   become: true
   tags: ["ct-vault"]
 
